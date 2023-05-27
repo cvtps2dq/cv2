@@ -33,78 +33,54 @@ var Genesis = () => {
 
 
 function intToChar(num) {
-    return num
-      .toString()    // convert number to string
-      .split('')     // convert string to array of characters
-      .map(Number)   // parse characters as numbers
-      .map(n => (n || 10) + 64)   // convert to char code, correcting for J
-      .map(c => String.fromCharCode(c))   // convert char codes to strings
-      .join('');     // join values together
+  return num
+    .toString()    // convert number to string
+    .split('')     // convert string to array of characters
+    .map(Number)   // parse characters as numbers
+    .map(n => (n || 10) + 64)   // convert to char code, correcting for J
+    .map(c => String.fromCharCode(c))   // convert char codes to strings
+    .join('');     // join values together
+}
+
+function stringsplit(str, size) {
+  if (str == null)
+    return [];
+  str = String(str);
+  return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
+}
+
+function cv2(datain) {
+  var  i, chr, salt = "", target = '', shiftval = 0, res = 0;
+
+  if (datain.length === 0) return 0;
+
+  // create salt
+  var alpha = "ABCDEFGHIJKLMNOPQRSTUVWXY";
+  var alphaII = "zyxwvutsrqponmlkjihgfedcba";
+
+  console.log(datain);
+
+  // get shift val
+  shiftval = target.charCodeAt(0);
+
+  // create blocks
+
+  var blocks = [];
+  blocks = stringsplit(datain, 8);
+  console.log(blocks)
+  // prepare blocks (add salt and trim to 8 blocks)
+  for(i = 0; i < blocks.length; i++){
+    blocks[i] = alpha[i] + blocks[i] + alphaII[i];
   }
+  console.log(blocks)
   
-  function strHex(datain) {
-    var hex, i;
-  
-    var result = "";
-    for (i = 0; i < datain.length; i++) {
-      hex = datain.charCodeAt(i).toString(16);
-      result += ("" + hex).slice(-4);
-    }
-  
-    return result
+  for (i = 0; i < target.length; i++) {
+    chr = target.charCodeAt(i);
+      res = res + (((res << 5) - res) + chr);
   }
-  
-  function cv2(datain) {
-  
-    // cvtps2dq, 2023
-    // advanced hash algorhythm
-    // input - any string
-    // output - hexadecimal string
-    var hash = 0, i, chr, salt, target = '', shiftval = 0;
-  
-    if (datain.length === 0) return hash;
-  
-    // create salt
-    for (i = 0; i < datain.length; i++) {
-  
-      salt += intToChar('' + datain.charCodeAt(i) ^ datain.charCodeAt(i - 1));
-  
-    }
-    salt = strHex(salt);
-  
-    // mix salt with input data
-  
-  
-    for (i = 0; i < datain.length; i++) {
-  
-      target += salt[i] + datain[i];
-  
-    }
-  
-    // get shift val
-  
-    shiftval = target.charCodeAt(0);
-  
-    console.log(shiftval);
-    // first interation hashing
-    for (i = 0; i < target.length; i++) {
-  
-      chr = target.charCodeAt(i);
-      hash = '' + (((hash << 5) - hash) + chr);
-  
-    }
-  
-    // second iteration hash
-    for (i = 0; i < target.length; i++) {
-      chr = target.charCodeAt(i);
-      hash = '' + (((hash << 3) - hash) + chr);
-  
-    } 
-  
-    hash = strHex(hash);
-    
-    return hash;
-  }
-  
-  str = 'hash mtereshfsfg';
-  console.log(cv2(str));
+
+  return (res >>> 0).toString(16);
+}
+
+str = '12345678abcdefgh';
+console.log(cv2(str));
