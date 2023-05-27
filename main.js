@@ -30,8 +30,6 @@ var Genesis = () => {
 }
 */
 
-
-
 function intToChar(num) {
   return num
     .toString()    // convert number to string
@@ -54,33 +52,27 @@ function cv2(datain) {
 
   if (datain.length === 0) return 0;
 
-  // create salt
-  var alpha = "ABCDEFGHIJKLMNOPQRSTUVWXY";
-  var alphaII = "zyxwvutsrqponmlkjihgfedcba";
-
-  console.log(datain);
-
-  // get shift val
-  shiftval = target.charCodeAt(0);
-
   // create blocks
-
   var blocks = [];
   blocks = stringsplit(datain, 8);
-  console.log(blocks)
-  // prepare blocks (add salt and trim to 8 blocks)
+  // prepare blocks (add salt)
   for(i = 0; i < blocks.length; i++){
-    blocks[i] = alpha[i] + blocks[i] + alphaII[i];
-  }
-  console.log(blocks)
-  
-  for (i = 0; i < target.length; i++) {
-    chr = target.charCodeAt(i);
-      res = res + (((res << 5) - res) + chr);
+    blocks[i] = intToChar(i) + blocks[i] + intToChar(i + 1);
   }
 
-  return (res >>> 0).toString(16);
+  var output = [];
+
+  for(const block of blocks){
+    res = 0;
+    for (var ix = 0; ix < block.length; ix++ ){
+      chr = block.charCodeAt(ix);
+      res = res + (((res << 5) - res) + chr);
+    }
+    output.push((res >>> 0).toString(16));
+  }
+
+  return output.join('');
 }
 
-str = '12345678abcdefgh';
+str = 'cvtps2dq';
 console.log(cv2(str));
